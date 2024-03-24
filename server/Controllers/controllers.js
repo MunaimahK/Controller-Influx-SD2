@@ -1,13 +1,16 @@
 const User = require("../Models/AdminSchema.js");
 const clubMember = require("../Models/user-model.js");
 const Admin = require("../Models/admin-model.js");
+const cQ = require("../Models/custom-question-model.js");
+const mongoose = require("mongoose");
 const { hashPwd, comparePwd } = require("../helpers/auth.js");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 require("dotenv");
 const cookies = require("cookies");
 const test = (req, res) => {
-  res.json("test is working");
+  res.json({ error: true });
+  /* res.redirect(301, "http://localhost:3000");*/
 };
 
 require("dotenv").config();
@@ -18,11 +21,12 @@ const firstTimeQ = async (req, res) => {
     console.log(req.query);
     // rename req.body information sent by user
     const UID = req.query.UID;
-    const { name, major, gradDate, clubName } = req.query.data;
+    const { name, major, gradDate } = req.query.data;
     console.log(name);
     console.log(major);
     console.log(gradDate);
-    console.log(clubName);
+    const clubName = req.query.clubName;
+    console.log(req.query.clubName);
 
     // three if statements check if form fields are entered
     // toast picks up error body and displays as notification
@@ -64,6 +68,7 @@ const firstTimeQ = async (req, res) => {
       major,
       gradDate,
       clubName,
+      paidDues: false,
       customQ: [],
     });
 
@@ -270,6 +275,7 @@ const display = (req, res) => {
     .then((users) => res.json(users))
     .catch((err) => res.json(err));
 };
+/*
 const authenticate = async (req, res, next) => {
   const token = req.cookies.access_token;
   console.log("token", token);
@@ -286,16 +292,191 @@ const authenticate = async (req, res, next) => {
       res.redirect(301, "http://localhost:3000/");
     }
   }
+};*/
+
+const authenticate = async (req, res, next) => {
+  try {
+    const token = req.cookies.access_token;
+    const user = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = user;
+    res.send(req.user);
+    // console.log("AUTHENTICATE:   ", req);
+    next();
+  } catch (error) {
+    if (error.name === "TokenExpiredError") {
+      console.log("TOKEN EXPIRED");
+      token = req.cookies.refresh_token;
+      user = jwt.verify(token, process.env.JWT_SECRET);
+      req.user = user;
+      console.log("AUTHENTICATE:   ", req.user);
+    }
+    res.clearCookie("access_token");
+    res.clearCookie("refresh_token");
+    // clear cookies and redirect to influx main page
+    // essentially session logs out and user has to come back
+    // res.redirect("localhost:3000/");
+    const redirect_url = "http://localhost:3000";
+    console.log(error);
+    res.send(req.user);
+    //  res.redirect(301, redirect_url);
+  }
 };
 
-const customQ = async (req, res) => {
-  return res.json({ error: true });
+const retrieveCustomQ = async (req, res) => {
+  try {
+    const check = await cQ.find();
+
+    console.log(check);
+    if (check.length > 0) {
+      const updatedQArray = await cQ.findOne().where(check[0]._id);
+      console.log("NEW Q in Display:", updatedQArray);
+      res.json(updatedQArray);
+    } else {
+      res.json([]);
+    }
+    // res.json({ error: true });
+    /*
+    const questions = await cQ.find();
+    if (questions) {
+      console.log("QUESTIONS: ", questions);
+      res.json({ data: questions });
+      /res.json([
+        { question: "Age?", answer: "" },
+        { question: "Experience?", answer: "" },
+        { question: "Hobbies?", answer: "" },
+      ]);
+    } else {
+      res.json([{}]);
+    }*/
+  } catch (err) {
+    console.log(err);
+  }
 
   /*custom q:
 
   Software Development Experience (1/2/3/4/5) [How much do you know about software development?]
   */
 };
+
+const updateCQForm = async (req, res) => {
+  console.log("UPDATECGFROM");
+  console.log(req.query.q);
+  const newQ = req.query.q;
+  const check = await cQ.find();
+  console.log(check);
+  if (check.length > 0) {
+    const updatedQArray = await cQ
+      .findOneAndUpdate({
+        $push: {
+          customquestion: { question: newQ, answer: "" },
+        },
+      })
+      .where(check[0]._id);
+    console.log("NEW Q:", updatedQArray);
+  } else {
+    const data = new cQ({
+      question: newQ,
+      answer: "",
+    });
+    data.save();
+  }
+};
+
+const displayCustomQ = async (req, res) => {
+  const check = await cQ.find();
+
+  console.log(check);
+  if (check.length > 0) {
+    const updatedQArray = await cQ.findOne().where(check[0]._id);
+    console.log("NEW Q in Display:", updatedQArray);
+    res.json(updatedQArray);
+  } else {
+    res.json([]);
+  }
+  // res.json([{ question: "How are you?" }]);
+};
+
+const deleteCustomQ = async (req, res) => {
+  const check = await cQ.find();
+  // const questionID = req.query;
+  const documentID = check[0]._id;
+  const itemIdToRemove = req.query.qID;
+  const itemId = new mongoose.Types.ObjectId(itemIdToRemove);
+  const filter = { _id: documentID };
+  const update = {
+    $pull: { customquestion: { _id: itemId } },
+  };
+  cQ.updateOne(filter, update)
+    .then(async (result) => {
+      console.log(result);
+      const updatedQArray = await cQ.findOne().where(check[0]._id);
+      console.log("NEW Q in Display:", updatedQArray);
+      res.json(updatedQArray);
+      // Handle success
+    })
+    .catch((error) => {
+      console.error("Update error:", error);
+      // Handle update error
+    });
+  console.log("qid IN DELETE:", itemIdToRemove);
+  console.log("iN dELETE:", check);
+};
+
+const updateDuesPaid = async (req, res) => {
+  const token = req.cookies.access_token;
+  // console.log("TOKEN IN FTQ:  ", token);
+  const decodedToken = jwt.decode(token);
+
+  const updatedDuesMember = await clubMember
+    .findOneAndUpdate({
+      paidDues: true,
+    })
+    .where(decodedToken._id);
+
+  console.log(updatedDuesMember);
+
+  res.redirect(301, "http://localhost:3002/pay/Dues/Stripe");
+};
+
+const checkPaid = async (req, res) => {
+  console.log(req);
+  try {
+    console.log("REQ QUERY:", req.query);
+    const decodedToken = jwt.decode(req.query.TOKEN);
+    console.log("DECODED TOKEN:", decodedToken);
+    const updatedDuesMember = await clubMember
+      .findOneAndUpdate({
+        paidDues: true,
+      })
+      .where(decodedToken._id);
+    console.log(updatedDuesMember);
+
+    console.log(("IS IT TRUE?", updatedDuesMember.paidDues));
+    res.json({ paidDues: updatedDuesMember.paidDues });
+  } catch (err) {
+    console.log(err);
+    res.json({});
+  }
+};
+
+const updateAnswers = async (req, res) => {
+  //res.json({ msg: true });
+  console.log("UPDATE ANSWER", req.query.submit);
+  const answerArray = req.query.submit;
+  console.log("UPDATE ANSWER", req.query.token);
+
+  const user = await clubMember
+    .findOneAndUpdate({
+      $push: {
+        customQ: answerArray,
+      },
+    })
+    .where(req.query.token._id);
+  console.log(user);
+
+  res.json({ msg: user });
+};
+
 module.exports = {
   test,
   register,
@@ -307,5 +488,11 @@ module.exports = {
   updateQR,
   defaultAdmin,
   Logout,
-  customQ,
+  retrieveCustomQ,
+  updateDuesPaid,
+  checkPaid,
+  updateCQForm,
+  updateAnswers,
+  displayCustomQ,
+  deleteCustomQ,
 };

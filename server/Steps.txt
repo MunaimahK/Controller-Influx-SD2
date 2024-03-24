@@ -3,3 +3,10 @@ In controller, create the function for the route (authController)
 
 This just keeps the routes cleaner
 
+How to clone duplicate controller"
+
+https://docs.github.com/en/repositories/creating-and-managing-repositories/duplicating-a-repository
+
+Make sure to change baseURL
+CORS origins
+props.redirect on Main server

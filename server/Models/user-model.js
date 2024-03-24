@@ -8,6 +8,7 @@ const clubMember = new mongoose.Schema(
     gradDate: String,
     clubName: String,
     qrcodeURL: String,
+    paidDues: Boolean,
     customQ: [
       {
         question: String,

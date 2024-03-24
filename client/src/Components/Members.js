@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import { useState, useEffect } from "react";
 import "./Members.css";
+import AdminNavbar from "./AdminNavbar";
 
 const Members = () => {
   // fetch users from DB via backend API endpoint /member/details
@@ -45,7 +46,7 @@ const Members = () => {
   return (
     // return retrieved data and display as a table
     <div id="main-bg">
-      <Navbar />
+      <AdminNavbar />
       <div>
         {
           <div className="users-table">

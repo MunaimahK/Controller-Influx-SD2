@@ -1,6 +1,10 @@
+import { useEffect } from "react";
 import "./mainpage.css";
 import Navbar from "./Navbar";
+import axios from "axios";
+import useRefreshToken from "./refreshToken";
 const Mainpage = () => {
+  //useRefreshToken();
   return (
     <div id="main-rso">
       <Navbar />

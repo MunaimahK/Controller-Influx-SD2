@@ -12,6 +12,8 @@ import Admin from "./Components/Admin";
 import { UserContextProvider } from "./context/userContext";
 import CreateEvent from "./Components/CreateEvent";
 import Members from "./Components/Members";
+import PayDues from "./Components/PayDues";
+import CustomQForm from "./Components/CustomQForm";
 
 axios.defaults.baseURL = "http://localhost:8000";
 axios.defaults.withCredentials = true;
@@ -28,7 +30,8 @@ function App() {
         <Route path="/socials" element={<Contacts />} />
         <Route path="/events" element={<Events />} />
         <Route path="/member/details" element={<Members />} />
-        <Route path="/path to Stripe" element={<Members />} />
+        <Route path="/pay/Dues/Stripe" element={<PayDues />} />
+        <Route path="/custom/question/form" element={<CustomQForm />} />
       </Routes>
     </UserContextProvider>
   );
