@@ -1,0 +1,55 @@
+@import url("https://fonts.googleapis.com/css2?family=Nanum+Gothic+Coding&family=Raleway&display=swap");
+
+.container {
+  position: relative;
+  justify-content: center;
+  width: 80%;
+  height: 60%;
+  border-radius: 40px;
+  position: absolute;
+  top: 55%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgb(0, 0, 0);
+}
+
+.intro {
+  position: absolute;
+  justify-content: center;
+  width: 95%;
+  height: 95%;
+  border-radius: 40px;
+  margin-right: -5vh;
+  opacity: 1;
+  color: rgb(9, 3, 3);
+  background-color: rgb(243, 244, 240);
+  animation: fadeIn 1s;
+  border-color: black;
+  overflow: scroll;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.intro-text {
+  justify-content: center;
+  color: rgb(55, 19, 84);
+  height: 10%;
+  position: relative;
+  display: block;
+  margin-left: 10vh;
+  margin-top: 5vh;
+  font-size: 40px;
+  font-weight: bolder;
+}
+
+.intro-text p {
+  font-size: 20px;
+  color: rgb(0, 0, 0);
+}

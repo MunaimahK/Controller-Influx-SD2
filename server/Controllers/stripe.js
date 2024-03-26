@@ -12,10 +12,10 @@ const stripeEP = async (req, res) => {
       },
     ],
     mode: "payment",
-    success_url: `http://localhost:8000/paid-dues-update-paid`,
+    success_url: `http://localhost:8000/paid-dues`,
     // cancel_url: `http://localhost:3002/pay/Dues/Stripe?canceled=true`,
     // cancel_url: "http://localhost:8000/paid-dues-update-paid",
-    cancel_url: `http://localhost:8000/paid-dues`,
+    cancel_url: `http://localhost:3002/pay/Dues/Stripe?canceled=true`,
   });
 
   // res.redirect(303, session.url);

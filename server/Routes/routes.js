@@ -18,6 +18,10 @@ const {
   updateAnswers,
   displayCustomQ,
   deleteCustomQ,
+  lendUser,
+  takeGeneral,
+  findDuesPayingMembers,
+  passwordResetRequest,
 } = require("../Controllers/controllers.js");
 const { stripeEP } = require("../Controllers/stripe.js");
 
@@ -67,5 +71,9 @@ router.get("/update-custom-questions", updateCQForm);
 router.get("/checkout-session", stripeEP);
 router.get("/paid-dues", updateDuesPaid);
 router.get("/paid-dues-check", checkPaid);
-
+router.get("/lend-user", lendUser);
+router.get("/take-general", takeGeneral);
+router.get("/paying-dues-members", findDuesPayingMembers);
+router.post("/password-reset-request", passwordResetRequest);
+// router.post("/reset-password", resetPassword);
 module.exports = router;

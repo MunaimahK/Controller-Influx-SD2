@@ -1,4 +1,4 @@
-const User = require("../Models/AdminSchema.js");
+const Admin1 = require("../Models/AdminSchema.js");
 const clubMember = require("../Models/user-model.js");
 const Admin = require("../Models/admin-model.js");
 const cQ = require("../Models/custom-question-model.js");
@@ -6,8 +6,10 @@ const mongoose = require("mongoose");
 const { hashPwd, comparePwd } = require("../helpers/auth.js");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const sendEmail = require("./sendEmail.js");
 require("dotenv");
 const cookies = require("cookies");
+let countDefAdmin = 0;
 const test = (req, res) => {
   res.json({ error: true });
   /* res.redirect(301, "http://localhost:3000");*/
@@ -17,39 +19,17 @@ require("dotenv").config();
 
 const firstTimeQ = async (req, res) => {
   try {
-    // console.log(req);
-    console.log(req.query);
-    // rename req.body information sent by user
-    const UID = req.query.UID;
-    const { name, major, gradDate } = req.query.data;
-    console.log(name);
-    console.log(major);
-    console.log(gradDate);
-    const clubName = req.query.clubName;
-    console.log(req.query.clubName);
+    console.log(req);
 
-    // three if statements check if form fields are entered
-    // toast picks up error body and displays as notification
-    if (!name) {
-      return res.json({
-        error: "Name is required",
-      });
-    }
-    if (!major) {
-      return res.json({
-        error: "major is required",
-      });
-    }
-    if (!gradDate) {
-      return res.json({
-        error: "Grad Date Required",
-      });
-    }
-    if (!clubName) {
-      return res.json({
-        error: "Club Name Required",
-      });
-    }
+    const f_name = req.query.f_name;
+    const surname = req.query.surname;
+    const email = req.query.email;
+    const NID = req.query.NID;
+    const Gender = req.query.Gender;
+    const major = req.query.major;
+    const classStanding = req.query.classStanding;
+    const UID = req.query.UID;
+    console.log(UID, f_name, surname, email, NID, Gender, major, classStanding);
 
     const exist = await clubMember.findOne({ UID });
     if (exist) {
@@ -57,17 +37,15 @@ const firstTimeQ = async (req, res) => {
         error: true,
       });
     }
-
-    // create a hashed password using hashPwd helper function
-    // const hashedPwd = await hashPwd(password);
-    //console.log("Addded");
-    // create user with req.body infromation
     const user = clubMember.create({
       UID,
-      name,
+      f_name,
+      surname,
+      email,
+      NID,
+      Gender,
       major,
-      gradDate,
-      clubName,
+      classStanding,
       paidDues: false,
       customQ: [],
     });
@@ -77,7 +55,7 @@ const firstTimeQ = async (req, res) => {
     if (clubMember.find()) {
       console.log("Addded");
     }
-    return res.json(user.clubName);
+    return res.json(user);
   } catch (error) {
     console.log(error);
   }
@@ -98,7 +76,6 @@ const updateQR = async (req, res) => {
 const defaultAdmin = async (req, res) => {
   const password = "123456";
   const hashedPwd = await hashPwd(password);
-  var count = 0;
 
   const admin = await Admin.findOne({
     username: "default",
@@ -110,9 +87,9 @@ const defaultAdmin = async (req, res) => {
         username: "default",
         password: hashedPwd,
       });
-      if (count == 0) {
+      if (countDefAdmin == 0) {
         await defAdmin.save();
-        count = 1;
+        countDefAdmin = 1;
       }
       console.log("success");
     } catch (error) {
@@ -185,7 +162,7 @@ const login = async (req, res) => {
 
     // If user exists, then check passwords match
     const match = await comparePwd(password, user.password);
-    console.log(match);
+    console.log("MATCH:", match);
 
     if (match) {
       jwt.sign(
@@ -421,7 +398,7 @@ const deleteCustomQ = async (req, res) => {
   console.log("qid IN DELETE:", itemIdToRemove);
   console.log("iN dELETE:", check);
 };
-
+// start copying from here
 const updateDuesPaid = async (req, res) => {
   const token = req.cookies.access_token;
   // console.log("TOKEN IN FTQ:  ", token);
@@ -434,15 +411,22 @@ const updateDuesPaid = async (req, res) => {
     .where(decodedToken._id);
 
   console.log(updatedDuesMember);
-
+  const paidInUser = await clubMember.findOne().where(decodedToken._id);
+  console.log("PAID IN USER:", paidInUser);
+  // res.redirect(301, "http://localhost:3002/pay/Dues/Stripe", true);
+  /*, {
+    params: {
+      url_s: "http://localhost:3002/pay/Dues/Stripe",
+      paidDues: paidInUser.paidDues,
+    }, */
   res.redirect(301, "http://localhost:3002/pay/Dues/Stripe");
 };
 
-const checkPaid = async (req, res) => {
+/*const checkPaid = async (req, res) => {
   console.log(req);
   try {
     console.log("REQ QUERY:", req.query);
-    const decodedToken = jwt.decode(req.query.TOKEN);
+    const decodedToken = jwt.decode(req.cookies.access_token);
     console.log("DECODED TOKEN:", decodedToken);
     const updatedDuesMember = await clubMember
       .findOneAndUpdate({
@@ -456,6 +440,29 @@ const checkPaid = async (req, res) => {
   } catch (err) {
     console.log(err);
     res.json({});
+  }
+};*/
+
+const checkPaid = async (req, res) => {
+  console.log(req);
+  try {
+    console.log("REQ QUERY:", req.query);
+    //const decodedToken = jwt.decode(req.cookies.access_token);
+    const decodedToken =
+      jwt.decode(req.query.token) || jwt.decode(req.cookies.access_token);
+    console.log("DECODED TOKEN:", decodedToken);
+    const updatedDuesMember = await clubMember
+      .findOneAndUpdate({
+        paidDues: true,
+      })
+      .where(decodedToken._id);
+    console.log(updatedDuesMember);
+
+    console.log(("IS IT TRUE?", updatedDuesMember.paidDues));
+    res.json({ paidDues: updatedDuesMember.paidDues });
+  } catch (err) {
+    console.log(err);
+    res.json({ paidDues: false });
   }
 };
 
@@ -477,6 +484,111 @@ const updateAnswers = async (req, res) => {
   res.json({ msg: user });
 };
 
+const lendUser = async (req, res) => {
+  console.log(req);
+  console.log(req.query.UID);
+  try {
+    const user = await clubMember.findOne().where(req.query.id);
+    res.json({ msg: user });
+  } catch (err) {
+    console.log(err);
+    res.json({ msg: true });
+  }
+};
+
+const takeGeneral = async (req, res, next) => {
+  try {
+    const UID = req.query.UID;
+    const f_name = req.query.f_name;
+    const surname = req.query.surname;
+    const email = req.query.email;
+    const NID = req.query.NID;
+    const Gender = req.query.Gender;
+    const major = req.query.major;
+    const classStanding = req.query.classStanding;
+
+    const user = clubMember.create({
+      UID,
+      f_name,
+      surname,
+      email,
+      NID,
+      Gender,
+      major,
+      classStanding,
+      paidDues: false,
+      customQ: [],
+    });
+
+    (await user).save();
+
+    if (clubMember.find()) {
+      console.log("Addded");
+    }
+  } catch (err) {
+    console.log(err);
+  }
+
+  /*
+  const UID = req.query.UID;
+  console.log(UID, f_name, surname, email, NID, Gender, major, classStanding);
+  try {
+    const { name, major, gradDate, clubName, UID, id } = req.query;
+    console.log(name, major, gradDate, clubName, UID);
+    const user = clubMember.create({
+      UID,
+      name,
+      major,
+      gradDate,
+      clubName,
+      paidDues: false,
+      customQ: [],
+    });
+
+    (await user).save();
+
+    if (clubMember.find()) {
+      console.log("Addded");
+    }
+  } catch (err) {
+    console.log(err);
+  }*/
+  res.json({ msg: "true in takeGeneral" });
+};
+
+const findDuesPayingMembers = async (req, res) => {
+  try {
+    clubMember
+      .find({ paidDues: true })
+      .then((users) => res.json(users))
+      .catch((err) => res.json(err));
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+const passwordResetRequest = async (req, res) => {
+  const { email } = req.body;
+  const user = await Admin.findOne({ email });
+  if (!user) {
+    return res.status(404).send("User not found.");
+  }
+
+  const resetToken = crypto.randomBytes(20).toString("hex");
+  user.resetToken = resetToken;
+  user.resetTokenExpiry = Date.now() + 3600000; // Token expires in 1 hour
+  await user.save();
+
+  // change this based on the resetlink we are going to have
+  const resetLink = `http://influx.com/reset-password/${resetToken}`;
+  await sendEmail(
+    user.email,
+    "Password Reset Request",
+    `Please click on the link to reset your password: ${resetLink}`
+  );
+
+  res.send("A password reset link has been sent to your email.");
+};
 module.exports = {
   test,
   register,
@@ -495,4 +607,8 @@ module.exports = {
   updateAnswers,
   displayCustomQ,
   deleteCustomQ,
+  lendUser,
+  takeGeneral,
+  findDuesPayingMembers,
+  passwordResetRequest,
 };

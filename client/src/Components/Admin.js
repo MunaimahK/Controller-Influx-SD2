@@ -11,7 +11,19 @@ const Admin = () => {
   const navigate = useNavigate();
   const { user } = useContext(UserContext);
   console.log(user);
-
+  const resetPWD = async (e) => {
+    axios.defaults.withCredentials = true;
+    e.preventDefault();
+    try {
+      await axios.get("/logout", {}, { withCredentials: true }).then((res) => {
+        console.log(res);
+        navigate("/reset-pwd");
+      });
+    } catch (err) {
+      console.log(err);
+    }
+    // navigate("/admin/login");
+  };
   // async functions envelope navigation to respective pages
   const event = async (e) => {
     e.preventDefault();
@@ -20,11 +32,11 @@ const Admin = () => {
   };
   const attendance = async (e) => {
     e.preventDefault();
-    navigate("/attendance");
+    navigate("http://localhost:3002/attendance");
   };
   const dues = async (e) => {
     e.preventDefault();
-    navigate("/dues");
+    window.location.replace("http://localhost:3002/dues");
   };
   const QForm = async (e) => {
     e.preventDefault();
@@ -55,6 +67,10 @@ const Admin = () => {
       <div className="features">
         <br></br>
         <ul>
+          <button class="button-17" onClick={resetPWD}>
+            Reset Password
+          </button>
+          <br></br>
           <button class="button-17" onClick={event}>
             Create Event
           </button>
