@@ -1,0 +1,151 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Montserrat", sans-serif;
+}
+/*
+:root {
+  --darkest: #f9f3e1;
+  --middle: #f7f5ec;
+  --light: #b3c8cf;
+  --accent: #21e6c1;
+  --white: rgb(255, 255, 255);
+  --accentdeep: #7fc7d9;
+  --accentlight: #96b5b3;
+  --hover: #7f9a98;
+}*/
+
+:root {
+  --darkest: #c4c3c3;
+  --middle: #c9c9c7;
+  --light: #edf0f1;
+  --accent: #21e6c1;
+  --white: rgb(255, 255, 255);
+  --accentdeep: #7fc7d9;
+  --accentlight: #96b5b3;
+}
+
+.body-sign-in {
+  background-color: white;
+  background: linear-gradient(to right, var(--darkest), var(--middle));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  height: 100vh;
+}
+.container-sign-in {
+  background-color: #fff;
+  border-radius: 30px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.35);
+  position: relative;
+  overflow: hidden;
+  width: 650px;
+  max-width: 100%;
+  min-height: 480px;
+}
+
+.btn-reset {
+  background-color: var(--accentlight);
+  color: #fff;
+  font-size: 12px;
+  padding: 10px 45px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-weight: 600;
+  letter-spacing: 01px;
+  text-transform: uppercase;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.btn-reset:hover {
+  background-color: var(--hover);
+  color: #fff;
+  font-size: 12px;
+  padding: 10px 45px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-weight: 600;
+  letter-spacing: 01px;
+  text-transform: uppercase;
+  margin-top: 10px;
+  cursor: pointer;
+}
+.form-container-2 {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  height: 100%;
+  transition: all 0.6s ease-in-out;
+}
+
+.border {
+  background-color: var(--accentlight);
+  height: 100%;
+  opacity: 1;
+  background: linear-gradient(to right, var(--accentdeep), var(--accentlight));
+  color: #fff;
+  position: relative;
+  left: -100%;
+  height: 100%;
+  width: 200%;
+}
+
+.border-container {
+  position: absolute;
+  top: 0;
+  left: 0%;
+  width: 50%;
+  height: 100%;
+  overflow: hidden;
+  transition: all 0.6s ease-in-out;
+  border-radius: 0 80px 80px 0;
+  z-index: 1000;
+}
+
+.border-panel {
+  position: absolute;
+  width: 50%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 0 30px;
+  text-align: center;
+  top: 0;
+  transform: translateX(0);
+  transition: all 0.6s ease-in-out;
+  color: white;
+}
+
+.back-arrow {
+  position: absolute;
+  top: 20px; /* Adjust as needed */
+  left: 20px; /* Adjust as needed */
+  z-index: 999;
+}
+.arrow {
+  border: solid black;
+  border-width: 0 3px 3px 0;
+  display: inline-block;
+  padding: 6px;
+  float: left;
+  transform: rotate(135deg);
+  -webkit-transform: rotate(135deg);
+  margin-right: 10px;
+}
+
+.body-sign-in .left {
+  transform: rotate(135deg);
+  -webkit-transform: rotate(135deg);
+}
+
+/* Animate button issue#25 
+.container-sign-in button:hover {
+}
+*/

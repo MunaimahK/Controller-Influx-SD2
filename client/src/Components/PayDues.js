@@ -15,17 +15,6 @@ const PayDues = () => {
     let paidStatus = false;
     axios.defaults.withCredentials = true;
     try {
-      /*
-      const data = await fetch(
-        "http://localhost:8001/create-checkout-session",
-        {
-          method: "POST",
-          headers: headers,
-        }
-      ).then((res) => {
-        console.log(res.data.msg);
-      });*/
-
       const data = axios
         .get("http://localhost:8000/checkout-session", {
           headers: {
@@ -48,16 +37,6 @@ const PayDues = () => {
                 if (!res.data.paidDues) {
                   window.location.replace(red_url);
                   console.log("PRESENT");
-                  /*const update = await axios
-                    //  .post(`${res.data.msg}`, {
-                    .get("http://localhost:8000/paid-dues", {
-                      headers: {
-                        "Content-Type": "application/json",
-                      },
-                    })
-                    .then((res) => {
-                      console.log(res.data);
-                    });*/
                 }
               });
           } catch (err) {

@@ -2,6 +2,7 @@ const Admin1 = require("../Models/AdminSchema.js");
 const clubMember = require("../Models/user-model.js");
 const Admin = require("../Models/admin-model.js");
 const cQ = require("../Models/custom-question-model.js");
+const Events = require("../Models/event-model.js");
 const mongoose = require("mongoose");
 const { hashPwd, comparePwd } = require("../helpers/auth.js");
 const bcrypt = require("bcrypt");
@@ -149,8 +150,9 @@ const login = async (req, res) => {
   defaultAdmin(req, res);
   try {
     // take the username user logs in with and store in const username
-    const { username, password } = req.body;
+    const { username, password } = req.query;
     console.log("username", username, password);
+
     // Check if user exists
     const user = await Admin.findOne({ username });
     console.log(user);
@@ -398,6 +400,32 @@ const deleteCustomQ = async (req, res) => {
   console.log("qid IN DELETE:", itemIdToRemove);
   console.log("iN dELETE:", check);
 };
+
+const deleteEvent = async (req, res) => {
+  const check = await Events.find();
+  // const questionID = req.query;
+  const documentID = check[0]._id;
+  const itemIdToRemove = req.query.eID;
+  const itemId = new mongoose.Types.ObjectId(itemIdToRemove);
+  const filter = { _id: documentID };
+  const update = {
+    $pull: { event: { _id: itemId } },
+  };
+  Events.updateOne(filter, update)
+    .then(async (result) => {
+      console.log(result);
+      const updatedEArray = await Events.findOne().where(check[0]._id);
+      console.log("NEW Q in Display:", updatedEArray);
+      res.json(updatedEArray);
+      // Handle success
+    })
+    .catch((error) => {
+      console.error("Update error:", error);
+      // Handle update error
+    });
+  console.log("eid IN DELETE:", itemIdToRemove);
+  console.log("iN dELETE:", check);
+};
 // start copying from here
 const updateDuesPaid = async (req, res) => {
   const token = req.cookies.access_token;
@@ -442,6 +470,58 @@ const updateDuesPaid = async (req, res) => {
     res.json({});
   }
 };*/
+const displayEvents = async (req, res) => {
+  const check = await Events.find();
+
+  console.log(check);
+  if (check.length > 0) {
+    const updatedEArray = await Events.findOne().where(check[0]._id);
+    console.log("NEW Q in Display:", updatedEArray);
+    console.log("UPDATED E ARRAY:", updatedEArray.event);
+    res.json(updatedEArray.event);
+  } else {
+    res.json([]);
+  }
+};
+
+const updateEventsList = async (req, res) => {
+  console.log("UPDATE EVENTS FROM");
+  //console.log(req.query.q);
+  //const newQ = req.query.q;
+  const event = req.query.entry;
+  console.log(req);
+  const title = event.title;
+  const desc = event.description;
+  const location = event.location;
+  const date = event.date;
+  console.log("consts", title, desc, location, date);
+  const check = await Events.find();
+
+  if (check.length > 0) {
+    const updatedEArray = await Events.findOneAndUpdate({
+      $push: {
+        event: {
+          eventTitle: title,
+          Description: desc,
+          Location: location,
+          Date: date,
+        },
+      },
+    }).where(check[0]._id);
+
+    console.log("NEW Q:", updatedEArray);
+  } else {
+    /*
+    const data = new Events({
+      eventTitle: title,
+      Description: desc,
+      Location: location,
+      Date: date,
+    });
+    data.save();*/
+    console.log("HERE");
+  }
+};
 
 const checkPaid = async (req, res) => {
   console.log(req);
@@ -589,6 +669,36 @@ const passwordResetRequest = async (req, res) => {
 
   res.send("A password reset link has been sent to your email.");
 };
+
+const totalMembers = async (req, res) => {
+  try {
+    const count = await clubMember.countDocuments();
+    res.json({ data: count });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+const totalAdmins = async (req, res) => {
+  try {
+    const count = await Admin.countDocuments();
+    res.json({ data: count });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+const totalMembersPaid = async (req, res) => {
+  try {
+    const count = await clubMember.countDocuments({ paidDues: true });
+    console.log("COUNT:", count);
+    res.json({ data: count });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Internal server error", data: 0 });
+  }
+};
+
 module.exports = {
   test,
   register,
@@ -611,4 +721,10 @@ module.exports = {
   takeGeneral,
   findDuesPayingMembers,
   passwordResetRequest,
+  totalMembers,
+  totalAdmins,
+  totalMembersPaid,
+  displayEvents,
+  updateEventsList,
+  deleteEvent,
 };

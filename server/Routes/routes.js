@@ -22,6 +22,12 @@ const {
   takeGeneral,
   findDuesPayingMembers,
   passwordResetRequest,
+  totalAdmins,
+  totalMembers,
+  totalMembersPaid,
+  displayEvents,
+  updateEventsList,
+  deleteEvent,
 } = require("../Controllers/controllers.js");
 const { stripeEP } = require("../Controllers/stripe.js");
 
@@ -54,9 +60,10 @@ router.use(
     },
   })
 );
+// I chnaged login from popst to get, still not working
 // router.get("/", test);
 router.post("/register", register);
-router.post("/login", login);
+router.get("/login", login);
 router.get("/profile", profile);
 router.get("/member/details", display);
 router.get("/one-time-signup-server", firstTimeQ);
@@ -68,6 +75,9 @@ router.get("/custom-questions", retrieveCustomQ);
 router.get("/update-answers", updateAnswers);
 router.get("/remove-question", deleteCustomQ);
 router.get("/update-custom-questions", updateCQForm);
+router.get("/display-events", displayEvents);
+router.get("/update-events", updateEventsList);
+router.get("/remove-event", deleteEvent);
 router.get("/checkout-session", stripeEP);
 router.get("/paid-dues", updateDuesPaid);
 router.get("/paid-dues-check", checkPaid);
@@ -75,5 +85,9 @@ router.get("/lend-user", lendUser);
 router.get("/take-general", takeGeneral);
 router.get("/paying-dues-members", findDuesPayingMembers);
 router.post("/password-reset-request", passwordResetRequest);
+router.get("/total/admins", totalAdmins);
+router.get("/total/members", totalMembers);
+router.get("/total/members/paid/dues", totalMembersPaid);
+
 // router.post("/reset-password", resetPassword);
 module.exports = router;

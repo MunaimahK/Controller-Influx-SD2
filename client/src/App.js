@@ -14,13 +14,24 @@ import Members from "./Components/Members";
 import PayDues from "./Components/PayDues";
 import CustomQForm from "./Components/CustomQForm";
 import EventsNew from "./Components/EventsNew";
-import Socials from "./Components/Socials";
+import Socials from "./Components/ControllerFront/Socials";
 import DuesPayingMembers from "./Components/DuesPayingMembers";
 import ResetPWD from "./Components/ResetPWD";
+import Home from "./Components/ControllerFront/Home";
+import About from "./Components/ControllerFront/About";
+import AdminSignAndRegister from "./Components/AdminAccount/AdminSignAndRegister";
+import ForgotPWD from "./Components/AdminAccount/ForgotPWD";
+import Dashboard from "./Components/AdminDashboard/Dashboard";
+import MemberDetails from "./Components/AdminDashboard/Pages/MemberDetails";
+import CustomQuestionForm from "./Components/AdminDashboard/Pages/CustomQuestionForm";
+import Events from "./Components/AdminDashboard/Pages/Events";
+import EventPage from "./Components/ControllerFront/EventPage";
+import Payment from "./Components/ControllerFront/Payment";
 
 axios.defaults.baseURL = "http://localhost:8000";
 axios.defaults.withCredentials = true;
 function App() {
+  /*
   return (
     <UserContextProvider>
       <Toaster position="bottom-right" toastOptions={{ duration: 2000 }} />
@@ -37,6 +48,25 @@ function App() {
         <Route path="/custom/question/form" element={<CustomQForm />} />
         <Route path="/dues" element={<DuesPayingMembers />} />
         <Route path="/reset-pwd" element={<ResetPWD />} />
+      </Routes>
+    </UserContextProvider>
+  );*/
+
+  return (
+    <UserContextProvider>
+      <Toaster position="bottom-right" toastOptions={{ duration: 2000 }} />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/events" element={<EventPage />} />
+        <Route path="/socials" element={<Socials />} />
+        <Route path="/pay/Dues/Stripe" element={<Payment />} />
+        <Route path="/login" element={<AdminSignAndRegister />} />
+        <Route path="/forget/password" element={<ForgotPWD />} />
+        <Route path="/admin" element={<Dashboard />} />
+        <Route path="/member/details" element={<MemberDetails />} />
+        <Route path="/custom/question/form" element={<CustomQuestionForm />} />
+        <Route path="/events/admin" element={<Events />} />
       </Routes>
     </UserContextProvider>
   );
