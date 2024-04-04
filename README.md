@@ -8,6 +8,7 @@
 - About Page
 - Socials Page
 - Events (Rendered)
+- Stripe Payment
 - Admin Login
 - Admin Reset Password
 - Admin: Display Club Members
