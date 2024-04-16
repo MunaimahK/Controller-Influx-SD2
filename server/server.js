@@ -36,15 +36,31 @@ const corsOptions = {
   optionSuccessStatus: 200,
 };
 app.use(cors(corsOptions));
-
+/*
 try {
-  const db = mongoose.connect("mongodb://localhost:27017/Controller1");
+  // const db = mongoose.connect("mongodb://localhost:27017/Controller1");
+  const db = mongoose.connect("mongodb://mongo:27017/Controller1");
   // const db = mongoose.connect(process.env.MONGO_URL);
   // const db = mongoose.connect("mongodb://localhost:27017/Controller1");
   console.log("Connected");
 } catch (error) {
   handleError(error);
-}
+}*/
+const connectWithRetry = async () => {
+  try {
+    await mongoose.connect(`mongodb://mongo:27017/Controller1`, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log("Connected to MongoDB");
+  } catch (err) {
+    console.error("Failed to connect to MongoDB:", err);
+    // Retry connection after a delay (e.g., 5 seconds)
+    setTimeout(connectWithRetry, 5000);
+  }
+};
+
+connectWithRetry();
 
 app.use("/", require("./Routes/routes"));
 
