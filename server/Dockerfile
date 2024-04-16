@@ -16,7 +16,7 @@ RUN npm install
 
 # Bundle app source
 # COPY . .
-
+ENV SERVER_PORT=8000
 # Expose the port your app runs on
 EXPOSE 8000
 
