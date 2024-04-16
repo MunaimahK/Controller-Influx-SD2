@@ -29,29 +29,11 @@ import EventPage from "./Components/ControllerFront/EventPage";
 import Payment from "./Components/ControllerFront/Payment";
 
 axios.defaults.baseURL = "http://localhost:8000";
+// axios.defaults.baseURL = `${process.env.BASE_URL}`;
+// axios.defaults.baseURL = `http://localhost:${process.env.SERVER_PORT}`;
+console.log("server port", process.env.SERVER_PORT);
 axios.defaults.withCredentials = true;
 function App() {
-  /*
-  return (
-    <UserContextProvider>
-      <Toaster position="bottom-right" toastOptions={{ duration: 2000 }} />
-      <Routes>
-        <Route path="/" element={<Mainpage />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/admin" element={<Admin />} />
-        <Route path="/event/create" element={<CreateEvent />} />
-        <Route path="/socials" element={<Socials />} />
-        <Route path="/events" element={<EventsNew />} />
-        <Route path="/member/details" element={<Members />} />
-        <Route path="/pay/Dues/Stripe" element={<PayDues />} />
-        <Route path="/custom/question/form" element={<CustomQForm />} />
-        <Route path="/dues" element={<DuesPayingMembers />} />
-        <Route path="/reset-pwd" element={<ResetPWD />} />
-      </Routes>
-    </UserContextProvider>
-  );*/
-
   return (
     <UserContextProvider>
       <Toaster position="bottom-right" toastOptions={{ duration: 2000 }} />
