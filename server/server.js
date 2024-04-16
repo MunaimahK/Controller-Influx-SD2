@@ -5,8 +5,6 @@ const cors = require("cors");
 const url = require("url");
 const { error } = require("console");
 const cookieParser = require("cookie-parser");
-// const port = process.env.PORT || 3001;
-//const router = express.Router();
 
 const app = express();
 app.use(express.json());
@@ -40,7 +38,8 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 try {
-  const db = mongoose.connect("mongodb://localhost:27017/Controller1");
+  // const db = mongoose.connect("mongodb://localhost:27017/Controller1");
+  const db = mongoose.connect(process.env.MONGO_URI);
   console.log("Connected");
 } catch (error) {
   handleError(error);
@@ -48,7 +47,7 @@ try {
 
 app.use("/", require("./Routes/routes"));
 
-app.listen(8000, function(err) {
+app.listen(process.env.SERVER_PORT, function(err) {
   if (err) console.log(err);
   console.log("Server listening on PORT");
 });

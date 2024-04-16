@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Navbar from "./Navbar";
 import axios from "axios";
 import { Typography, Button, Container, Box } from "@mui/material";
@@ -20,6 +20,7 @@ const Payment = () => {
           console.log(res.data.msg);
           console.log("2: ", res.data.msg);
           const red_url = res.data.msg;
+
           window.location.replace(red_url);
           /*
           try {
@@ -31,18 +32,39 @@ const Payment = () => {
                 paidStatus = res.data.paidDues;
                 setPaid(res.data.paidDues);
                 if (!res.data.paidDues) {
-                  // window.location.replace(red_url);
                   console.log("PRESENT");
+                  window.location.replace(red_url);
                 }
               });
           } catch (err) {
             console.log(err);
-          }*/ // this part replaced by a useeffect
+          }*/
+        })
+        .then(async () => {
+          const data = (await axios.get("/update-paid-dues")).then((res) => {
+            console.log(res);
+          });
         });
     } catch (err) {
       console.log(err);
     }
   };
+
+  useEffect(() => {
+    // Function to check paid status when component mounts
+    const checkPaidStatus = async () => {
+      try {
+        const response = await axios.get("/check-dues");
+        setPaid(response.data.paidDues);
+        console.log(response.data.paidDues);
+      } catch (error) {
+        console.error("Error checking paid status:", error);
+      }
+    };
+
+    // Call the function to check paid status
+    checkPaidStatus();
+  }, []);
   // Work on Handle Pay Dues. Need to run Influx Main Server First
   return (
     <div className="home-container">

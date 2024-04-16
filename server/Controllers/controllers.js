@@ -22,11 +22,11 @@ const firstTimeQ = async (req, res) => {
   try {
     console.log(req);
 
-    const f_name = req.query.f_name;
+    const f_name = req.query.firstName;
     const surname = req.query.surname;
     const email = req.query.email;
-    const NID = req.query.NID;
-    const Gender = req.query.Gender;
+    const NID = req.query.nid;
+    const Gender = req.query.gender;
     const major = req.query.major;
     const classStanding = req.query.classStanding;
     const UID = req.query.UID;
@@ -428,26 +428,51 @@ const deleteEvent = async (req, res) => {
 };
 // start copying from here
 const updateDuesPaid = async (req, res) => {
-  const token = req.cookies.access_token;
-  // console.log("TOKEN IN FTQ:  ", token);
-  const decodedToken = jwt.decode(token);
+  console.log("UPDATE DUES PAID");
+  try {
+    const token = req.cookies.access_token;
+    console.log("TOKEN IN FTQ:  ", token);
+    const decodedToken = jwt.decode(token);
+    console.log("UPDATE DUES PAID", decodedToken);
+    /*
+    const updatedDuesMember = await clubMember
+      .findOneAndUpdate({
+        paidDues: true,
+      })
+      .where(decodedToken.UID);*/
+    const updatedDuesMember = await clubMember.findOneAndUpdate(
+      { UID: decodedToken.UID }, // Query condition
+      { paidDues: true }, // Update field
+      { new: true } // To return the updated document
+    );
 
-  const updatedDuesMember = await clubMember
-    .findOneAndUpdate({
-      paidDues: true,
-    })
-    .where(decodedToken._id);
+    // Check if user was found and updated
+    if (updatedDuesMember) {
+      console.log("Updated dues for user:", updatedDuesMember);
+    } else {
+      console.log("User not found or dues not updated.");
+      // Handle case where user is not found or dues not updated
+    }
 
-  console.log(updatedDuesMember);
-  const paidInUser = await clubMember.findOne().where(decodedToken._id);
-  console.log("PAID IN USER:", paidInUser);
+    // find by UID
+    // then update and paidDues to true
+    console.log(updatedDuesMember);
+    const paidInUser = await clubMember.findOne().where(decodedToken.UID);
+    console.log("PAID IN USER:", paidInUser);
+  } catch (err) {
+    console.log(err);
+  }
+  res.redirect(
+    301,
+    `http://localhost:${process.env.CLIENT_PORT}/pay/Dues/Stripe`
+  );
+
   // res.redirect(301, "http://localhost:3002/pay/Dues/Stripe", true);
   /*, {
     params: {
       url_s: "http://localhost:3002/pay/Dues/Stripe",
       paidDues: paidInUser.paidDues,
     }, */
-  res.redirect(301, "http://localhost:3002/pay/Dues/Stripe");
 };
 
 /*const checkPaid = async (req, res) => {
@@ -524,7 +549,8 @@ const updateEventsList = async (req, res) => {
 };
 
 const checkPaid = async (req, res) => {
-  console.log(req);
+  //  console.log(req);
+  console.log("checkPaid");
   try {
     console.log("REQ QUERY:", req.query);
     //const decodedToken = jwt.decode(req.cookies.access_token);
@@ -539,6 +565,7 @@ const checkPaid = async (req, res) => {
     console.log(updatedDuesMember);
 
     console.log(("IS IT TRUE?", updatedDuesMember.paidDues));
+
     res.json({ paidDues: updatedDuesMember.paidDues });
   } catch (err) {
     console.log(err);
@@ -546,20 +573,50 @@ const checkPaid = async (req, res) => {
   }
 };
 
+const checkDues = async (req, res) => {
+  // console.log(req);
+  console.log("check Dues");
+  try {
+    console.log("REQ QUERY:", req.query);
+    //const decodedToken = jwt.decode(req.cookies.access_token);
+    const decodedToken =
+      jwt.decode(req.query.token) || jwt.decode(req.cookies.access_token);
+    console.log("DECODED TOKEN:", decodedToken);
+    console.log("UID:", decodedToken.UID);
+    const duesmember = await clubMember.find({ UID: decodedToken.UID });
+
+    console.log("DUES MEMBER:", duesmember, duesmember[0].paidDues);
+    res.json({ paidDues: duesmember[0].paidDues });
+  } catch (err) {
+    console.log(err);
+  }
+};
 const updateAnswers = async (req, res) => {
   //res.json({ msg: true });
-  console.log("UPDATE ANSWER", req.query.submit);
+  console.log("UPDATE ANSWER ARRAY", req.query.submit);
   const answerArray = req.query.submit;
-  console.log("UPDATE ANSWER", req.query.token);
-
+  console.log("TOKEN UID IN UPDATE", req.query.token.UID);
+  const user = await clubMember.find({ UID: req.query.token.UID });
+  console.log("USER:", user[0]);
+  console.log("USER ID", user[0]._id);
+  /*
   const user = await clubMember
     .findOneAndUpdate({
       $push: {
         customQ: answerArray,
       },
     })
-    .where(req.query.token._id);
-  console.log(user);
+    .where(req.query.token._id);*/
+  const userInClub = await clubMember.findByIdAndUpdate(
+    user[0]._id,
+    {
+      $push: {
+        customQ: answerArray,
+      },
+    },
+    { new: true }
+  );
+  console.log("USER IN CLUB:", userInClub);
 
   res.json({ msg: user });
 };
@@ -568,7 +625,8 @@ const lendUser = async (req, res) => {
   console.log(req);
   console.log(req.query.UID);
   try {
-    const user = await clubMember.findOne().where(req.query.id);
+    const user = await clubMember.findOne().where({ UID: req.query.UID });
+    console.log("USER IN LEND:", user);
     res.json({ msg: user });
   } catch (err) {
     console.log(err);
@@ -727,4 +785,5 @@ module.exports = {
   displayEvents,
   updateEventsList,
   deleteEvent,
+  checkDues,
 };
