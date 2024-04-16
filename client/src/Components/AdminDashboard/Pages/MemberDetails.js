@@ -60,7 +60,8 @@ const MemberDetails = () => {
   const [search, setSearch] = useState("");
   const event = useEffect(() => {
     axios
-      .get("http://localhost:8000/member/details")
+      // .get("http://localhost:8000/member/details")
+      .get("/member/details")
       .then((users) => {
         //setUsers(users.data);
         const usersWithIds = users.data.map((user, index) => ({

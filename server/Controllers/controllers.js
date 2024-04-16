@@ -217,29 +217,6 @@ const profile = (req, res) => {
           // Handle other errors
         }
       }
-      /*
-    jwt.verify(token, process.env.JWT_SECRET, {}, (err, user) => {
-      if (err) {
-        throw err;
-      }
-      console.log("here");
-      res.json(user);
-      if (err) {
-        if (err.name === "TokenExpiredError") {
-          console.error("JWT token has expired");
-          // Handle expired token error
-        } else if (err.name === "JsonWebTokenError") {
-          console.error("JWT verification failed:", err.message);
-          // Handle other JWT verification errors
-        } else {
-          console.error("JWT verification failed:", err);
-          // Handle other errors
-        }
-      } else {
-        console.log("Decoded token:", user);
-        res.json(user);
-      }
-    });*/
     } else {
       res.json({ error: true });
     }
@@ -254,24 +231,6 @@ const display = (req, res) => {
     .then((users) => res.json(users))
     .catch((err) => res.json(err));
 };
-/*
-const authenticate = async (req, res, next) => {
-  const token = req.cookies.access_token;
-  console.log("token", token);
-  try {
-    const user = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = user;
-    next();
-  } catch (error) {
-    console.log(error);
-    res.clearCookie("access_token");
-    // token = req.cookies.access_token;
-    if (!token) {
-      console.log("here");
-      res.redirect(301, "http://localhost:3000/");
-    }
-  }
-};*/
 
 const authenticate = async (req, res, next) => {
   try {
@@ -279,7 +238,7 @@ const authenticate = async (req, res, next) => {
     const user = jwt.verify(token, process.env.JWT_SECRET);
     req.user = user;
     res.send(req.user);
-    // console.log("AUTHENTICATE:   ", req);
+
     next();
   } catch (error) {
     if (error.name === "TokenExpiredError") {
@@ -293,8 +252,9 @@ const authenticate = async (req, res, next) => {
     res.clearCookie("refresh_token");
     // clear cookies and redirect to influx main page
     // essentially session logs out and user has to come back
-    // res.redirect("localhost:3000/");
-    const redirect_url = "http://localhost:3000";
+
+    // const redirect_url = "http://localhost:3000";
+    const redirect_url = `${process.env.INFLUX_URL}`;
     console.log(error);
     res.send(req.user);
     //  res.redirect(301, redirect_url);
@@ -313,28 +273,9 @@ const retrieveCustomQ = async (req, res) => {
     } else {
       res.json([]);
     }
-    // res.json({ error: true });
-    /*
-    const questions = await cQ.find();
-    if (questions) {
-      console.log("QUESTIONS: ", questions);
-      res.json({ data: questions });
-      /res.json([
-        { question: "Age?", answer: "" },
-        { question: "Experience?", answer: "" },
-        { question: "Hobbies?", answer: "" },
-      ]);
-    } else {
-      res.json([{}]);
-    }*/
   } catch (err) {
     console.log(err);
   }
-
-  /*custom q:
-
-  Software Development Experience (1/2/3/4/5) [How much do you know about software development?]
-  */
 };
 
 const updateCQForm = async (req, res) => {
@@ -372,7 +313,6 @@ const displayCustomQ = async (req, res) => {
   } else {
     res.json([]);
   }
-  // res.json([{ question: "How are you?" }]);
 };
 
 const deleteCustomQ = async (req, res) => {
@@ -403,7 +343,6 @@ const deleteCustomQ = async (req, res) => {
 
 const deleteEvent = async (req, res) => {
   const check = await Events.find();
-  // const questionID = req.query;
   const documentID = check[0]._id;
   const itemIdToRemove = req.query.eID;
   const itemId = new mongoose.Types.ObjectId(itemIdToRemove);
@@ -434,12 +373,7 @@ const updateDuesPaid = async (req, res) => {
     console.log("TOKEN IN FTQ:  ", token);
     const decodedToken = jwt.decode(token);
     console.log("UPDATE DUES PAID", decodedToken);
-    /*
-    const updatedDuesMember = await clubMember
-      .findOneAndUpdate({
-        paidDues: true,
-      })
-      .where(decodedToken.UID);*/
+
     const updatedDuesMember = await clubMember.findOneAndUpdate(
       { UID: decodedToken.UID }, // Query condition
       { paidDues: true }, // Update field
@@ -466,35 +400,8 @@ const updateDuesPaid = async (req, res) => {
     301,
     `http://localhost:${process.env.CLIENT_PORT}/pay/Dues/Stripe`
   );
-
-  // res.redirect(301, "http://localhost:3002/pay/Dues/Stripe", true);
-  /*, {
-    params: {
-      url_s: "http://localhost:3002/pay/Dues/Stripe",
-      paidDues: paidInUser.paidDues,
-    }, */
 };
 
-/*const checkPaid = async (req, res) => {
-  console.log(req);
-  try {
-    console.log("REQ QUERY:", req.query);
-    const decodedToken = jwt.decode(req.cookies.access_token);
-    console.log("DECODED TOKEN:", decodedToken);
-    const updatedDuesMember = await clubMember
-      .findOneAndUpdate({
-        paidDues: true,
-      })
-      .where(decodedToken._id);
-    console.log(updatedDuesMember);
-
-    console.log(("IS IT TRUE?", updatedDuesMember.paidDues));
-    res.json({ paidDues: updatedDuesMember.paidDues });
-  } catch (err) {
-    console.log(err);
-    res.json({});
-  }
-};*/
 const displayEvents = async (req, res) => {
   const check = await Events.find();
 
@@ -511,8 +418,6 @@ const displayEvents = async (req, res) => {
 
 const updateEventsList = async (req, res) => {
   console.log("UPDATE EVENTS FROM");
-  //console.log(req.query.q);
-  //const newQ = req.query.q;
   const event = req.query.entry;
   console.log(req);
   const title = event.title;
@@ -536,14 +441,6 @@ const updateEventsList = async (req, res) => {
 
     console.log("NEW Q:", updatedEArray);
   } else {
-    /*
-    const data = new Events({
-      eventTitle: title,
-      Description: desc,
-      Location: location,
-      Date: date,
-    });
-    data.save();*/
     console.log("HERE");
   }
 };
@@ -553,7 +450,6 @@ const checkPaid = async (req, res) => {
   console.log("checkPaid");
   try {
     console.log("REQ QUERY:", req.query);
-    //const decodedToken = jwt.decode(req.cookies.access_token);
     const decodedToken =
       jwt.decode(req.query.token) || jwt.decode(req.cookies.access_token);
     console.log("DECODED TOKEN:", decodedToken);
@@ -578,7 +474,7 @@ const checkDues = async (req, res) => {
   console.log("check Dues");
   try {
     console.log("REQ QUERY:", req.query);
-    //const decodedToken = jwt.decode(req.cookies.access_token);
+
     const decodedToken =
       jwt.decode(req.query.token) || jwt.decode(req.cookies.access_token);
     console.log("DECODED TOKEN:", decodedToken);
@@ -599,14 +495,7 @@ const updateAnswers = async (req, res) => {
   const user = await clubMember.find({ UID: req.query.token.UID });
   console.log("USER:", user[0]);
   console.log("USER ID", user[0]._id);
-  /*
-  const user = await clubMember
-    .findOneAndUpdate({
-      $push: {
-        customQ: answerArray,
-      },
-    })
-    .where(req.query.token._id);*/
+
   const userInClub = await clubMember.findByIdAndUpdate(
     user[0]._id,
     {
@@ -667,30 +556,6 @@ const takeGeneral = async (req, res, next) => {
     console.log(err);
   }
 
-  /*
-  const UID = req.query.UID;
-  console.log(UID, f_name, surname, email, NID, Gender, major, classStanding);
-  try {
-    const { name, major, gradDate, clubName, UID, id } = req.query;
-    console.log(name, major, gradDate, clubName, UID);
-    const user = clubMember.create({
-      UID,
-      name,
-      major,
-      gradDate,
-      clubName,
-      paidDues: false,
-      customQ: [],
-    });
-
-    (await user).save();
-
-    if (clubMember.find()) {
-      console.log("Addded");
-    }
-  } catch (err) {
-    console.log(err);
-  }*/
   res.json({ msg: "true in takeGeneral" });
 };
 

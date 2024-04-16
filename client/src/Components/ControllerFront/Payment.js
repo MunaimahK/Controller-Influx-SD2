@@ -22,23 +22,6 @@ const Payment = () => {
           const red_url = res.data.msg;
 
           window.location.replace(red_url);
-          /*
-          try {
-            // redirect to payment IF member's paid dues is false
-            const check = await axios
-              .get("/paid-dues-check")
-              .then(async (res) => {
-                console.log("RES AFTER CHECK:", res);
-                paidStatus = res.data.paidDues;
-                setPaid(res.data.paidDues);
-                if (!res.data.paidDues) {
-                  console.log("PRESENT");
-                  window.location.replace(red_url);
-                }
-              });
-          } catch (err) {
-            console.log(err);
-          }*/
         })
         .then(async () => {
           const data = (await axios.get("/update-paid-dues")).then((res) => {
