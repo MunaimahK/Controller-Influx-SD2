@@ -1,0 +1,28 @@
+version: '3.8'
+services:
+  mongo:
+    image: mongo
+    container_name: mongo_c
+    ports:
+      - "27017:27017"
+
+  backend:
+    build: 
+      context: ./server   # Specify the path to the directory containing the Dockerfile
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mongo
+    environment:
+      - MONGO_URL=mongodb://mongo:27017/Controller1
+
+  frontend:
+    build: 
+      context: ./client   # Specify the path to the directory containing the Dockerfile for the frontend
+      dockerfile: Dockerfile
+    stdin_open: true
+    ports:
+      - "3002:3002"
+    depends_on:
+      - backend

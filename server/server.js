@@ -38,8 +38,9 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 try {
-  // const db = mongoose.connect("mongodb://localhost:27017/Controller1");
   const db = mongoose.connect("mongodb://localhost:27017/Controller1");
+  // const db = mongoose.connect(process.env.MONGO_URL);
+  // const db = mongoose.connect("mongodb://localhost:27017/Controller1");
   console.log("Connected");
 } catch (error) {
   handleError(error);
