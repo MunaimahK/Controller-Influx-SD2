@@ -28,6 +28,7 @@ const {
   displayEvents,
   updateEventsList,
   deleteEvent,
+  checkDues,
 } = require("../Controllers/controllers.js");
 const { stripeEP } = require("../Controllers/stripe.js");
 
@@ -79,7 +80,8 @@ router.get("/display-events", displayEvents);
 router.get("/update-events", updateEventsList);
 router.get("/remove-event", deleteEvent);
 router.get("/checkout-session", stripeEP);
-router.get("/paid-dues", updateDuesPaid);
+router.get("/update-paid-dues", updateDuesPaid);
+router.get("/check-dues", checkDues);
 router.get("/paid-dues-check", checkPaid);
 router.get("/lend-user", lendUser);
 router.get("/take-general", takeGeneral);
@@ -88,6 +90,7 @@ router.post("/password-reset-request", passwordResetRequest);
 router.get("/total/admins", totalAdmins);
 router.get("/total/members", totalMembers);
 router.get("/total/members/paid/dues", totalMembersPaid);
+// router.get("/test", updateDuesPaid);
 
 // router.post("/reset-password", resetPassword);
 module.exports = router;
