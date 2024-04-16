@@ -1,10 +1,12 @@
 version: '3.8'
 services:
+
   mongo:
     image: mongo
-    container_name: mongo_c
     ports:
-      - "27017:27017"
+     - "27017:27017"
+    volumes:
+     - ./data:/data/db 
 
   backend:
     build: 
@@ -15,7 +17,7 @@ services:
     depends_on:
       - mongo
     environment:
-      - MONGO_URL=mongodb://mongo:27017/Controller1
+      - MONGO_URL=mongo:27017/Controller1
 
   frontend:
     build: 

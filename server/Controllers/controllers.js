@@ -438,10 +438,24 @@ const updateEventsList = async (req, res) => {
         },
       },
     }).where(check[0]._id);
+    // otherwise this is the first event
 
     console.log("NEW Q:", updatedEArray);
   } else {
     console.log("HERE");
+    const user = Events.create({
+      event: [
+        {
+          eventTitle: title,
+          Description: desc,
+          Location: location,
+          Date: date,
+        },
+      ],
+    });
+
+    (await user).save();
+    console.log("NEW E first time:", user);
   }
 };
 
