@@ -48,11 +48,12 @@ try {
 }*/
 const connectWithRetry = async () => {
   try {
-    await mongoose.connect(`mongodb://mongo:27017/Controller1`, {
+    await mongoose.connect(`mongodb://mongo:27017/${process.env.DB_NAME}`, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
     console.log("Connected to MongoDB");
+    console.log(process.env.DB_NAME);
   } catch (err) {
     console.error("Failed to connect to MongoDB:", err);
     // Retry connection after a delay (e.g., 5 seconds)

@@ -10,6 +10,7 @@ COPY . /usr/src/app
 
 # Install Python and necessary build tools
 RUN apk add --no-cache python3 make g++
+
 # Install dependencies
 RUN npm install
 
