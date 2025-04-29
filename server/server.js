@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require("express");
 const mongoose = require("mongoose");
 const axios = require("axios");
@@ -5,6 +6,9 @@ const cors = require("cors");
 const url = require("url");
 const { error } = require("console");
 const cookieParser = require("cookie-parser");
+const Admin = require("./Models/admin-model.js");
+
+
 
 const app = express();
 app.use(express.json());
@@ -48,7 +52,7 @@ try {
 }*/
 const connectWithRetry = async () => {
   try {
-    await mongoose.connect(`mongodb://mongo:27017/${process.env.DB_NAME}`, {
+    await mongoose.connect(process.env.MONGO_URL, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
@@ -65,7 +69,31 @@ connectWithRetry();
 
 app.use("/", require("./Routes/routes"));
 
-app.listen(process.env.SERVER_PORT, function(err) {
-  if (err) console.log(err);
-  console.log("Server listening on PORT");
+async function ensureDefaultAdmin() {
+  const password = "123456";
+
+  const existingAdmin = await Admin.findOne({ username: "default" });
+
+  if (!existingAdmin) {
+    try {
+      const defAdmin = new Admin({
+        username: "default",
+        password: password,
+      });
+      await defAdmin.save();
+      console.log("Default admin created.");
+    } catch (err) {
+      console.error("Failed to create default admin:", err);
+    }
+  } else {
+    console.log("Default admin already exists.");
+  }
+}
+
+
+app.listen(process.env.SERVER_PORT, async() => {
+  console.log("Server is running");
+  console.log(process.env.SERVER_PORT);
+  await ensureDefaultAdmin();
 });
+

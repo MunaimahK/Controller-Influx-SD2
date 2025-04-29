@@ -3,28 +3,40 @@ services:
 
   mongo:
     image: mongo
-    ports:
-     - "27017:27017"
     volumes:
      - ./data:/data/db 
+    restart: unless-stopped
+
 
   backend:
     build: 
-      context: ./server   # Specify the path to the directory containing the Dockerfile
+      context: ./server   
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
     depends_on:
       - mongo
+    env_file:
+      - ./server/.env
     environment:
-      - MONGO_URL=mongo:27017/Controller1
+      - MONGO_URL=mongodb://mongo:27017/Controller1
+      - DB_NAME=Controller1
+    restart: unless-stopped
+    container_name: controller1-backend
+
+
 
   frontend:
     build: 
-      context: ./client   # Specify the path to the directory containing the Dockerfile for the frontend
+      context: ./client  
       dockerfile: Dockerfile
+    tty: true
     stdin_open: true
     ports:
       - "3002:3002"
     depends_on:
       - backend
+    restart: unless-stopped
+    container_name: controller1-frontend
+
+

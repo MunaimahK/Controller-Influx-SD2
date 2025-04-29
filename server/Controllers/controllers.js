@@ -145,6 +145,43 @@ const register = async (req, res) => {
     console.log(error);
   }
 };
+
+const login = async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    console.log("Input Username:", username);
+    console.log("Input Password:", password);
+
+    // Check if user exists
+    const user = await Admin.findOne({ username });
+    if (!user) {
+      console.log("No user found");
+      return res.json({ error: "No user found" });
+    }
+
+    // Compare plaintext password directly
+    if (password === user.password) {
+      jwt.sign(
+        { username: user.username, id: user._id, email: user.email },
+        process.env.JWT_SECRET,
+        {},
+        (err, token) => {
+          if (err) {
+            throw err;
+          }
+          res.cookie("token", token).status(200).json({ message: "Password Match", user });
+        }
+      );
+    } else {
+      console.log("Incorrect Password");
+      return res.json({ error: "Incorrect Password" });
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Server Error" });
+  }
+};
+/*
 // Login Endpoint;endpoint connected to route in LoginOut.js
 const login = async (req, res) => {
   defaultAdmin(req, res);
@@ -190,7 +227,7 @@ const login = async (req, res) => {
   } catch (error) {
     console.log(error);
   }
-};
+};*/
 const Logout = async (req, res) => {
   console.log(req.cookies.token);
   res.clearCookie("token");
@@ -198,7 +235,7 @@ const Logout = async (req, res) => {
 };
 const profile = (req, res) => {
   try {
-    const { token } = req.cookies.token;
+    const token = req.cookies.token;
     console.log(token);
     if (token) {
       try {

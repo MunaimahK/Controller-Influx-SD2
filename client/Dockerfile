@@ -15,9 +15,7 @@ RUN npm install --force
 
 
 # Bundle app source
-# COPY . .
-
-
+COPY . .
 
 # Define environment variables
 #ENV NODE_ENV=production
