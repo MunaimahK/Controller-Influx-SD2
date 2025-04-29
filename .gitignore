@@ -128,3 +128,5 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+data/diagnostic.data/metrics.interim
+data/diagnostic.data/metrics.interim
